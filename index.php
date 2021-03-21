@@ -1,3 +1,59 @@
+<?php
+
+$servername = "localhost";
+$username = "root";
+$password = "mysql";
+$dbname = "sprint2";
+$board = 'employees';
+
+                 //   Connection to data base logic
+
+$conn = mysqli_connect($servername, $username, $password, $dbname);
+if (!$conn)
+    die("Connection failed: " . mysqli_connect_error());
+                       
+                 //   Table selection logic
+
+if (isset($_GET['path']) and $_GET['path'] !== $board) {
+    if ($_GET['path'] == 'employees' or $_GET['path'] == 'projects')
+        $board = $_GET['path'];
+}
+
+                 //   Deletion logic
+
+if (isset($_GET['delete'])) {
+    $sql_delete = "DELETE FROM " . $board . " WHERE id = " . $_GET['delete'];
+    $stmt = $conn->prepare($sql_delete);
+    $stmt->execute();
+    header("Location: /Sprint2/?path=" . $_GET['path']);
+}
+
+                 //   Adding new employee and project logic
+
+if (isset($_POST['ADD'])) {
+    print($_POST['name']);
+    $sql_add = "INSERT INTO " . $board . " (`name`) VALUES (?)";
+    $stmt = $conn->prepare($sql_add);
+    $stmt->bind_param("s", $_POST['name']);
+    $stmt->execute();
+    header("Location: /Sprint2/?path=" . $_GET['path']);
+}
+
+                //   Joining two table logic
+
+$sql = "SELECT "
+    . $board . ".id, "
+    . $board . ".name, GROUP_CONCAT(" . ($board === 'projects' ? 'employees' : 'projects') . ".name SEPARATOR \", \")" .
+    " FROM " . $board .
+    " LEFT JOIN " . ($board === 'projects' ? 'employees' : 'projects') .
+    " ON " . ($board === 'projects' ? 'employees.projects = projects.id' : 'employees.projects = projects.id') .
+    " GROUP BY " . $board . ".id;";
+
+$stmt = $conn->prepare($sql);
+$stmt->execute();
+$stmt->bind_result($id, $mainEntityName, $relatedEntityName);
+
+?>
 
 <!DOCTYPE html>
 <html lang="en">
