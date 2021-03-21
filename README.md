@@ -15,5 +15,3 @@ Add new employee or project
 -Ability to assign certain employee to a certain project
 -Ability to delete projects or employees
 -Add new employee or project
-
-Contributing Pull requests are welcome, but this project is for educational porpuses only. Thank you for your cooperation!
